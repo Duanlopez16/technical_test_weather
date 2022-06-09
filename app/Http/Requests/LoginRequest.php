@@ -21,6 +21,7 @@ class LoginRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json($validator->errors(), 400));
     }
+
     /**
      * Determine if the user is authorized to make this request.
      *

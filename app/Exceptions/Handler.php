@@ -2,33 +2,28 @@
 
 namespace App\Exceptions;
 
+use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
+/**
+ * Handler
+ */
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of exception types with their corresponding custom log levels.
+     * dontReport
      *
-     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+     * @var array
      */
-    protected $levels = [
-        //
-    ];
+    protected $dontReport = [];
 
     /**
-     * A list of the exception types that are not reported.
+     * dontFlash
      *
-     * @var array<int, class-string<\Throwable>>
-     */
-    protected $dontReport = [
-        //
-    ];
-
-    /**
-     * A list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
+     * @var array
      */
     protected $dontFlash = [
         'current_password',
@@ -37,14 +32,33 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
+     * register
      *
      * @return void
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (Exception $e, $request) {
+            return $this->handleException($request, $e);
         });
+    }
+    /**
+     * handleException
+     *
+     * @param  mixed $request
+     * @param  mixed $exception
+     * @return void
+     */
+    public function handleException($request, Exception $exception)
+    {
+        if ($exception instanceof RouteNotFoundException) {
+            return response()->json(["status" => 'error', "message" => "Error de autenticación"], 401);
+        }
+        if ($exception instanceof HttpException) {
+            return response()->json(["status" => 'error', "message" => "No se encontró la ruta."], 404);
+        }
+        if ($exception instanceof AuthorizationException) {
+            return response()->json(["status" => 'error', "message" => "Error de autorización, no tiene permisos"], 403);
+        }
     }
 }
