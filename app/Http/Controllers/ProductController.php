@@ -66,7 +66,7 @@ class ProductController extends Controller
             $model->name = $request->name;
             $model->description = $request->description;
             if ($model->save()) {
-                $response_data = \App\Services\Utils::get_response('succcess', 'add', $model->uuid);
+                $response_data = \App\Services\Utils::get_response('succcess', 'Guardado correctamente', $model->uuid);
             } else {
                 $response_data = \App\Services\Utils::get_response('error', 'Error al guardar el registro');
             }
